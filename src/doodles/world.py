@@ -54,6 +54,9 @@ class World:
             raise ValueError("Can't initialize world twice!")
         self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
 
+    def clear(self):
+        self._drawables = []
+
     def add(self, drawable):
         self._drawables.append(drawable)
 
