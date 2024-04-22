@@ -9,5 +9,6 @@ def same_spiral():
             Line(g).vec(d, 200 - d)
         yield g
 
-# Make copies, moving each one and modifying the color
-make_grid(same_spiral(), 3, 4, 250, 140, x_offset=70, y_offset=20)
+def create():
+    # Make copies, moving each one and modifying the color
+    make_grid(same_spiral(), 3, 4, 250, 140, x_offset=70, y_offset=20)

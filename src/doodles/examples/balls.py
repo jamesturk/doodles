@@ -24,7 +24,6 @@ class Ball(Circle):
         if self.y > world.HEIGHT + 20:
             self.move(0, -world.HEIGHT-20)
 
-balls = [Ball().pos(40*i, 0).radius(10).color(Color.BLUE) for i in range(21)]
 
 
 class GravityBall(Circle):
@@ -40,5 +39,6 @@ class GravityBall(Circle):
             self.speed *= -0.98 # dampening
             self.pos(self.x, world.HEIGHT - 10.01)
 
-
-grav = [GravityBall().pos(20+40*i, 0).radius(10).color(Color.PURPLE) for i in range(21)]
+def create():
+    balls = [Ball().pos(40*i, 0).radius(10).color(Color.BLUE) for i in range(21)]
+    grav = [GravityBall().pos(20+40*i, 0).radius(10).color(Color.PURPLE) for i in range(21)]

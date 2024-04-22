@@ -7,10 +7,7 @@ def original():
         c = c.copy().move(45, 45)
     return g
 
-r = original()
-r.copy().move(200, 0).color(Color.GREEN)
-r.copy().move(400, 0).color(Color.BLUE)
-
-# from doodles.world import world
-# for d in world._drawables:
-#     print(" >", d)
+def create():
+    r = original()
+    r.copy().move(200, 0).color(Color.GREEN)
+    r.copy().move(400, 0).color(Color.BLUE)

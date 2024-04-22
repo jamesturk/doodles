@@ -30,7 +30,7 @@ def load_module(modname):
             raise ImportError(
                 f"Tried to import {modname} and doodles.examples.{modname}"
             )
-    return mod
+    return mod.create()
 
 
 def main(modname: str = None):
