@@ -36,7 +36,11 @@ class Doodle(ABC):
         # All references to _pos_vec are internal to the class,
         # so it will be trivial to swap this out later.
         self._pos_vec = (0, 0)
-        if parent:
+        self._register()
+
+    def _register(self):
+        """ register with parent and world """
+        if self._parent:
             # register with parent for updates
             self._parent.add(self)
         world.add(self)
@@ -63,20 +67,20 @@ class Doodle(ABC):
 
         Additionally, while a shallow copy is enough for most
         cases, it will be possible for child classes to override
-        this to opt for a deepcopy or other logic.
+        this.
         """
         new = copy.copy(self)
-        world.add(new)
+        new._register()
         return new
 
-    def color(self, r: int, g: int, b: int) -> "Doodle":
+    def color(self, color: tuple[int, int, int]) -> "Doodle":
         """
         Color works as a kind of setter function.
 
         The only unique part is that it returns self, accomodating the
         chained object pattern.
         """
-        self._color = (r, g, b)
+        self._color = color
         return self
 
     def pos(self, x: float, y: float) -> "Doodle":
@@ -111,11 +115,11 @@ class Doodle(ABC):
         """
         x = random.random() * world.WIDTH
         y = random.random() * world.HEIGHT
-        r, g, b = Color.random()
+        color = Color.random()
         # again here, we opt to use the setters so that
         # future extensions to their behavior will be
         # used by all downstream functions
-        return self.pos(x, y).color(r, g, b)
+        return self.pos(x, y).color(color)
 
     @property
     def x(self) -> float:
@@ -265,9 +269,12 @@ class Group(Doodle):
     in some languages would be much trickier to pull off.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self._doodles = []
+
+    def __repr__(self):
+        return f"Group(pos={self.pos_vec}, doodles={len(self._doodles)})"
 
     def draw(self, screen):
         """
@@ -285,11 +292,16 @@ class Group(Doodle):
 
         We are storing a list, so deep copies are necessary.
         """
-        new = copy.deepcopy(self)
-        world.add(new)
+        new = copy.copy(self)
+        new._register()
+        new._doodles = []
+        for child in self._doodles:
+            child = copy.copy(child)
+            child._parent = new
+            child._register()
         return new
 
-    def color(self, r: int, g: int, b: int) -> "Doodle":
+    def color(self, color: tuple[int, int, int]) -> "Doodle":
         """
         Another override.
 
@@ -299,9 +311,9 @@ class Group(Doodle):
 
         We don't cascade pos() calls, why not?
         """
-        super().color(r, g, b)
+        super().color(color)
         for d in self._doodles:
-            d.color(r, g, b)
+            d.color(color)
         return self
 
     def add(self, doodle: "Doodle") -> "Group":
@@ -338,7 +350,7 @@ class Circle(Doodle):
         self._radius = 0
 
     def __repr__(self):
-        return f"Circle(pos={self.pos_vec}, radius={self._radius}, {self._color})"
+        return f"Circle(pos={self.pos_vec}, radius={self._radius}, {self._color}, parent={self._parent}))"
 
     def draw(self, screen):
         pygame.draw.circle(screen, self._color, self.pos_vec, self._radius)
@@ -359,4 +371,4 @@ class Circle(Doodle):
     def random(self) -> "Doodle":
         super().random()
         # constrain to 10-100
-        return self.radius(random.random*90 + 10)
+        return self.radius(random.random()*90 + 10)
