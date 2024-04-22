@@ -29,6 +29,7 @@ def main(modname: str):
                 pygame.quit()
                 sys.exit()
         world.render()
+        # print(f"world contains {world._drawables}")
         pygame.display.flip()
 
 

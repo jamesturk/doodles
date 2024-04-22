@@ -28,6 +28,7 @@ class Doodle(ABC):
     def __init__(self, parent=None):
         self._parent = parent
         self._color = parent._color if parent else Color.BLACK
+        self._z_index = 0
         # Is storing this vector in a tuple the right thing to do?
         # It might make more sense to store _x and _y, or use
         # a library's optimized 2D vector implementation.
@@ -38,6 +39,7 @@ class Doodle(ABC):
         if parent:
             # register with parent for updates
             self._parent.add(self)
+        world.add(self)
 
     @abstractmethod
     def draw(self, screen) -> None:
@@ -63,7 +65,9 @@ class Doodle(ABC):
         cases, it will be possible for child classes to override
         this to opt for a deepcopy or other logic.
         """
-        return copy.copy(self)
+        new = copy.copy(self)
+        world.add(new)
+        return new
 
     def color(self, r: int, g: int, b: int) -> "Doodle":
         """
@@ -82,6 +86,13 @@ class Doodle(ABC):
         As noted above, this encapsulates our storage decision for our 2D vector.
         """
         self._pos_vec = (x, y)
+        return self
+
+    def z_index(self, z: float) -> "Doodle":
+        """
+        Setter for z_index
+        """
+        self._z_index = z
         return self
 
     def move(self, dx: float, dy: float) -> "Doodle":
@@ -136,6 +147,10 @@ class Doodle(ABC):
         if self._parent:
             return self._parent.y + self._pos_vec[1]
         return self._pos_vec[1]
+
+    # @property
+    # def z_index(self) -> float:
+    #     return self._z_index
 
     @property
     def pos_vec(self) -> (float, float):
@@ -259,12 +274,10 @@ class Group(Doodle):
         Groups, despite being an abstract concept, are drawable.
         To draw a group is to draw everything in it.
 
-        The draw logic is to just call the draw method of all children.
-        This works because we know that all doodles are guaranteed
-        to have such a method.
+        This is done by default, since all drawables will be
+        registered with the scene upon creation.
         """
-        for d in self._doodles:
-            d.draw(screen)
+        pass
 
     def copy(self) -> "Group":
         """
@@ -272,7 +285,9 @@ class Group(Doodle):
 
         We are storing a list, so deep copies are necessary.
         """
-        return copy.deepcopy(self)
+        new = copy.deepcopy(self)
+        world.add(new)
+        return new
 
     def color(self, r: int, g: int, b: int) -> "Doodle":
         """
@@ -311,3 +326,37 @@ class Group(Doodle):
         # if we understand the implications of tightly
         # binding the implementations of these two classes.
         return self
+
+
+class Circle(Doodle):
+    def __init__(self, parent=None):
+        """
+        This is a less interesting class than Line, but very similar.
+        """
+        super().__init__(parent)
+        # circle is a position & radius
+        self._radius = 0
+
+    def __repr__(self):
+        return f"Circle(pos={self.pos_vec}, radius={self._radius}, {self._color})"
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self._color, self.pos_vec, self._radius)
+
+    def radius(self, r: float) -> "Doodle":
+        """
+        A setter for the circle's radius.
+        """
+        self._radius = r
+        return self
+
+    def grow(self, by: float):
+        """
+        Modify radius by an amount. (Negative to shrink.)
+        """
+        return self.radius(self._radius + by)
+
+    def random(self) -> "Doodle":
+        super().random()
+        # constrain to 10-100
+        return self.radius(random.random*90 + 10)

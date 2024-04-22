@@ -62,7 +62,7 @@ class World:
         Draw world to screen
         """
         self.screen.fill(self.background_color)
-        for d in self._drawables:
+        for d in sorted(self._drawables, key=lambda d: d._z_index):
             d.draw(self.screen)
 
 
