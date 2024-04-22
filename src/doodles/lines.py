@@ -1,7 +1,9 @@
 import math
 import random
 import pygame
+from typing import Callable
 from .doodles import Doodle
+
 
 class Line(Doodle):
     def __init__(self, parent=None):
@@ -58,6 +60,14 @@ class Line(Doodle):
         """
         Alternate constructor, to create offset vector from angle & length.
         """
+        if isinstance(degrees, Callable):
+            self.register_update(
+                self.to,
+                lambda: magnitude * math.cos(math.radians(degrees())),
+                lambda: magnitude * math.sin(math.radians(degrees())),
+            )
+            return self
+
         return self.to(
             magnitude * math.cos(math.radians(degrees)),
             magnitude * math.sin(math.radians(degrees)),
@@ -89,4 +99,3 @@ class Line(Doodle):
             self.x + self._offset_vec[0],
             self.y + self._offset_vec[1],
         )
-

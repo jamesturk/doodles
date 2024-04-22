@@ -27,6 +27,7 @@ class Doodle(ABC):
         self._parent = parent
         self._color = parent._color if parent else Color.BLACK
         self._z_index = 0
+        self._updates = []
         # Is storing this vector in a tuple the right thing to do?
         # It might make more sense to store _x and _y, or use
         # a library's optimized 2D vector implementation.
@@ -55,12 +56,20 @@ class Doodle(ABC):
         """
         pass
 
+    def register_update(self, method, *args):
+        self._updates.append((method, args))
+
     def update(self) -> None:
         """
-        An optional method, if implemented will be called every frame,
-        allowing for animation of properties.
+        Default implementation is to support
+        update function behavior.
+
+        Can be overriden (see examples.balls)
+        to provide per-object update behavior.
         """
-        pass
+        for method, args in self._updates:
+            evaled_args = [arg() for arg in args]
+            method(*evaled_args)
 
     def copy(self) -> "Doodle":
         """
