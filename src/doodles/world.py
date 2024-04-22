@@ -57,6 +57,10 @@ class World:
     def add(self, drawable):
         self._drawables.append(drawable)
 
+    def tick(self):
+        for d in self._drawables:
+            d.update()
+
     def render(self):
         """
         Draw world to screen

@@ -57,6 +57,13 @@ class Doodle(ABC):
         """
         pass
 
+    def update(self) -> None:
+        """
+        An optional method, if implemented will be called every frame,
+        allowing for animation of properties.
+        """
+        pass
+
     def copy(self) -> "Doodle":
         """
         It will be useful to have the ability to obtain a copy
