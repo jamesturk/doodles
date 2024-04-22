@@ -1,9 +1,15 @@
-from doodles.doodles import Group, Circle, Color
-from doodles.world import world
+from doodles import Group, Circle, Color
+
+def color_cycle():
+    while True:
+        yield Color.RED
+        yield Color.ORANGE
+        yield Color.YELLOW
 
 def create():
+    color = color_cycle()
     g = Group().pos(400, 300)
-    for r in range(20, 50, 5):
-        Circle(g).radius(r).color(Color.random()).z_index(-r)
-    for r in range(60, 150, 10):
-        Circle(g).radius(r).color(Color.random()).z_index(-r)
+    for r in range(20, 100, 12):
+        Circle(g).radius(r).color(next(color)).z_index(-r)
+    for r in range(100, 250, 12):
+        Circle(g).radius(r).color(next(color)).z_index(-r)

@@ -1,5 +1,5 @@
-from doodles.doodles import Group, Rectangle, Color
+from doodles import Rectangle
 
 def create():
     for _ in range(100):
-        r = Rectangle().random(250)
+        Rectangle().random(250)

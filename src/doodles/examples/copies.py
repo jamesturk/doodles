@@ -1,4 +1,4 @@
-from doodles.doodles import Group, Line, Circle, Color
+from doodles import Group, Circle, Color
 
 def original():
     g = Group()

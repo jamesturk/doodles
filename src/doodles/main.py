@@ -44,7 +44,8 @@ def main(modname: str = None):
     else:
         load_module(examples[ex_index])
 
-    elapsed = last_update = 0
+    elapsed = 0
+    clock = pygame.time.Clock()
 
     while True:
         for event in pygame.event.get():
@@ -58,11 +59,12 @@ def main(modname: str = None):
                 elif event.key == pygame.K_LEFT:
                     ex_index = (ex_index - 1) % len(examples)
                     load_module(examples[ex_index])
-        elapsed = pygame.time.get_ticks() - last_update
+        elapsed += clock.tick(FPS)
         while elapsed > MS_PER_FRAME:
             elapsed -= MS_PER_FRAME
             world.tick()
         world.render()
+        #print(clock.get_fps())
         pygame.display.flip()
 
 
