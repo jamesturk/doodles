@@ -34,6 +34,9 @@ class World:
 
     WIDTH = 800
     HEIGHT = 600
+    FPS = 60
+    MS_PER_FRAME = 1000 / FPS
+
     _instance = None
 
     def __init__(self):
@@ -52,7 +55,10 @@ class World:
         """
         if self.screen:
             raise ValueError("Can't initialize world twice!")
+        pygame.init()
         self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
+        self.clock = pygame.time.Clock()
+        self._elapsed = 0
 
     def clear(self):
         self._drawables = []
@@ -64,13 +70,21 @@ class World:
         for d in self._drawables:
             d.update()
 
-    def render(self):
+    def update(self):
         """
-        Draw world to screen
+        Update & draw world to screen.
         """
+        # update
+        self._elapsed += self.clock.tick(self.FPS)
+        while self._elapsed > self.MS_PER_FRAME:
+            self._elapsed -= self.MS_PER_FRAME
+            self.tick()
+
+        # rendering
         self.screen.fill(self.background_color)
         for d in sorted(self._drawables, key=lambda d: d._z_index):
             d.draw(self.screen)
+        pygame.display.flip()
 
 
 # our singleton instance

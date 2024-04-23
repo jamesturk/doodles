@@ -5,9 +5,6 @@ import importlib
 import typer
 from .world import world
 
-FPS = 60
-MS_PER_FRAME = 1000 / 60
-
 
 def get_examples():
     module_path = Path(__file__).parent / "examples"
@@ -34,7 +31,6 @@ def load_module(modname):
 
 
 def main(modname: str = None):
-    pygame.init()
     world.init()
 
     examples = get_examples()
@@ -43,9 +39,6 @@ def main(modname: str = None):
         load_module(modname)
     else:
         load_module(examples[ex_index])
-
-    elapsed = 0
-    clock = pygame.time.Clock()
 
     while True:
         for event in pygame.event.get():
@@ -59,14 +52,7 @@ def main(modname: str = None):
                 elif event.key == pygame.K_LEFT:
                     ex_index = (ex_index - 1) % len(examples)
                     load_module(examples[ex_index])
-        elapsed += clock.tick(FPS)
-        while elapsed > MS_PER_FRAME:
-            elapsed -= MS_PER_FRAME
-            world.tick()
-        world.render()
-        #print(clock.get_fps())
-        pygame.display.flip()
-
+        world.update()
 
 if __name__ == "__main__":
     typer.run(main)
