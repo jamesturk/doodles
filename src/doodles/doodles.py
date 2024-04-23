@@ -25,9 +25,10 @@ class Doodle(ABC):
 
     def __init__(self, parent=None):
         self._parent = parent
-        self._color = parent._color if parent else Color.BLACK
-        self._z_index = 0
         self._updates = []
+        self._color = parent._color if parent else Color.BLACK
+        self._alpha = parent._alpha if parent else 255
+        self._z_index = 0
         # Is storing this vector in a tuple the right thing to do?
         # It might make more sense to store _x and _y, or use
         # a library's optimized 2D vector implementation.
@@ -38,7 +39,7 @@ class Doodle(ABC):
         self._register()
 
     def _register(self):
-        """ register with parent and world """
+        """register with parent and world"""
         if self._parent:
             # register with parent for updates
             self._parent.add(self)
@@ -87,6 +88,8 @@ class Doodle(ABC):
         new._register()
         return new
 
+    # Setters #######################
+
     def color(self, color: tuple[int, int, int]) -> "Doodle":
         """
         Color works as a kind of setter function.
@@ -106,12 +109,33 @@ class Doodle(ABC):
         self._pos_vec = (x, y)
         return self
 
-    def z_index(self, z: float) -> "Doodle":
+    def x(self, x: float) -> "Doodle":
+        """
+        Setter for x component.
+        """
+        self._pos_vec = (x, self._pos_vec[1])
+
+    def y(self, y: float) -> "Doodle":
+        """
+        Setter for x component.
+        """
+        self._pos_vec = (self._pos_vec[0], y)
+
+    def alpha(self, a: int) -> "Doodle":
+        """
+        Setter for alpha transparency
+        """
+        self._alpha = a
+        return self
+
+    def z(self, z: float) -> "Doodle":
         """
         Setter for z_index
         """
         self._z_index = z
         return self
+
+    # Modifiers #################
 
     def move(self, dx: float, dy: float) -> "Doodle":
         """
@@ -135,47 +159,52 @@ class Doodle(ABC):
         # used by all downstream functions
         return self.pos(x, y).color(color)
 
+    # Getters ################
+
     @property
-    def x(self) -> float:
+    def world_x(self) -> float:
         """
-        A read-only attribute "doodle.x" that will
+        A read-only attribute "doodle.world_x" that will
         return the screen position derived from the parent position
         plus the current object's x component.
 
-        Note the recursion here, parent.x is an instance of doodle.x.
+        Note the recursion here, parent.world_x is an instance of doodle.world_x.
 
         For example:
 
-        A.x = 100
-        |--------B.x 10
-                 |--------C.x 20
+        A x = 100
+        |--------B x = 10
+                 |--------C.world_x 20
 
-        When drawing object C, parent.x will call B.x, which will call A.x.
-        B.x will return 110, and C.x will therefore return 130.
+        When drawing object C, world_x will call B.world_x which will call
+        A.world_x.
+        B will return 110, and C therefore returns 130.
         """
         if self._parent:
-            return self._parent.x + self._pos_vec[0]
+            return self._parent.world_x + self._pos_vec[0]
         return self._pos_vec[0]
 
     @property
-    def y(self) -> float:
+    def world_y(self) -> float:
         """
-        See documentation for .x above.
+        See documentation for .world_y above.
         """
         if self._parent:
-            return self._parent.y + self._pos_vec[1]
+            return self._parent.world_y + self._pos_vec[1]
         return self._pos_vec[1]
 
-    # @property
-    # def z_index(self) -> float:
-    #     return self._z_index
-
     @property
-    def pos_vec(self) -> (float, float):
+    def world_vec(self) -> (float, float):
         """
         Obtain derived position vector as a 2-tuple.
         """
-        return self.x, self.y
+        return self.world_x, self.world_y
+
+    @property
+    def rgba(self) -> (int, int, int, int):
+        """
+        """
+        return (*self._color, self._alpha)
 
 
 class Group(Doodle):
@@ -200,7 +229,7 @@ class Group(Doodle):
         self._doodles = []
 
     def __repr__(self):
-        return f"Group(pos={self.pos_vec}, doodles={len(self._doodles)})"
+        return f"Group(pos={self.world_vec}, doodles={len(self._doodles)})"
 
     def draw(self, screen):
         """

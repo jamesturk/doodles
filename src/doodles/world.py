@@ -1,6 +1,7 @@
 from .color import Color
 import pygame
 
+
 class World:
     """
     This class is a singleton, only one instance should ever exist.
@@ -57,6 +58,7 @@ class World:
             raise ValueError("Can't initialize world twice!")
         pygame.init()
         self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
+        self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self._elapsed = 0
 
@@ -81,12 +83,12 @@ class World:
             self.tick()
 
         # rendering
-        self.screen.fill(self.background_color)
+        self.buffer.fill((*self.background_color, 255))
         for d in sorted(self._drawables, key=lambda d: d._z_index):
-            d.draw(self.screen)
+            d.draw(self.buffer)
+        self.screen.blit(self.buffer, (0, 0))
         pygame.display.flip()
 
 
 # our singleton instance
 world = World()
-

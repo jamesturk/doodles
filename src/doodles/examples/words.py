@@ -7,7 +7,6 @@ from doodles import Group, Circle, Color, Text
 Text.make_font("small", 16, "mono")
 Text.make_font("medium", 24, "copperplate")
 Text.make_font("large", 48, "papyrus")
-print(Text._fonts)
 
 # Via ChatGPT
 hello_world = [
@@ -39,4 +38,4 @@ def create():
     for greeting in itertools.chain.from_iterable(itertools.repeat(hello_world, 3)):
         Text().random().font(
             random.choice(("small", "medium", "large"))
-        ).text(greeting)
+        ).color(random.choice((Color.LIGHT_GREY, Color.DARK_GREY))).text(greeting)

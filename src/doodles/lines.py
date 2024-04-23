@@ -20,7 +20,7 @@ class Line(Doodle):
         self._offset_vec = (10, 0)
 
     def __repr__(self):
-        return f"Line(pos={self.pos_vec}, end={self.end_vec}, {self._color})"
+        return f"Line(pos={self.world_vec}, end={self.end_vec}, {self._color})"
 
     def draw(self, screen):
         """
@@ -41,7 +41,7 @@ class Line(Doodle):
         to the class and gaining flexibility from separating
         presentation logic from data manipulation.
         """
-        pygame.draw.aaline(screen, self._color, self.pos_vec, self.end_vec)
+        pygame.draw.aaline(screen, self._color, self.world_vec, self.end_vec)
 
     def to(self, x: float, y: float) -> "Doodle":
         """
@@ -93,9 +93,9 @@ class Line(Doodle):
     @property
     def end_vec(self):
         """
-        Parallel to pos_vec for end of line.
+        Parallel to world_vec for end of line.
         """
         return (
-            self.x + self._offset_vec[0],
-            self.y + self._offset_vec[1],
+            self.world_x + self._offset_vec[0],
+            self.world_y + self._offset_vec[1],
         )

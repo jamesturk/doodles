@@ -63,7 +63,7 @@ class Text(Doodle):
         return f"Text(pos={self.pos_vec}, text={self._text}, parent={self._parent})"
 
     def draw(self, screen):
-        text_rect = self._rendered.get_rect(center=(self.x, self.y))
+        text_rect = self._rendered.get_rect(center=self.world_vec)
         screen.blit(self._rendered, text_rect)
 
     def text(self, text: str) -> "Doodle":

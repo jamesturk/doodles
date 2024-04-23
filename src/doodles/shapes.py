@@ -13,10 +13,10 @@ class Circle(Doodle):
         self._radius = 0
 
     def __repr__(self):
-        return f"Circle(pos={self.pos_vec}, radius={self._radius}, {self._color}, parent={self._parent}))"
+        return f"Circle(pos={self.world_vec}, radius={self._radius}, {self._color}, parent={self._parent}))"
 
     def draw(self, screen):
-        pygame.draw.circle(screen, self._color, self.pos_vec, self._radius)
+        pygame.draw.circle(screen, self.rgba, self.world_vec, self._radius)
 
     def radius(self, r: float) -> "Doodle":
         """
@@ -48,12 +48,12 @@ class Rectangle(Doodle):
         self._height = 100
 
     def __repr__(self):
-        return f"Rect(pos={self.pos_vec}, width={self._width}, height={self._height}, parent={self._parent})"
+        return f"Rect(pos={self.world_vec}, width={self._width}, height={self._height}, parent={self._parent})"
 
     def draw(self, screen):
         rect = pygame.Rect(
-            self.x - self._width / 2,
-            self.y - self._height / 2,
+            self.world_x - self._width / 2,
+            self.world_y - self._height / 2,
             self._width,
             self._height,
         )
