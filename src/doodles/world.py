@@ -5,8 +5,19 @@ from .draw_engine import DrawEngine
 
 
 class PygameDrawEngine(DrawEngine):
+    def init(self):
+        self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
+        self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
+
+    def render(self, background_color: Color, drawables: list["Doodle"]):
+        self.buffer.fill((*background_color, 255))
+        for d in sorted(drawables, key=lambda d: d._z_index):
+            d.draw()
+        self.screen.blit(self.buffer, (0, 0))
+        pygame.display.flip()
+
     def circle_draw(self, c: "Circle"):
-        pygame.draw.circle(world.buffer, c.rgba, c.world_vec, c.radius_val)
+        pygame.draw.circle(self.buffer, c.rgba, c.world_vec, c.radius_val)
 
     def rect_draw(self, r: "Rectangle"):
         # TODO: make accessors
@@ -16,11 +27,10 @@ class PygameDrawEngine(DrawEngine):
             r._width,
             r._height,
         )
-        pygame.draw.rect(world.buffer, r.rgba, rect)
+        pygame.draw.rect(self.buffer, r.rgba, rect)
 
     def line_draw(self, ll: "Line"):
-        print("line_draw", ll)
-        pygame.draw.aaline(world.buffer, ll.rgba, ll.world_vec, ll.end_vec)
+        pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
 
 class World:
@@ -79,10 +89,9 @@ class World:
         if self.screen:
             raise ValueError("Can't initialize world twice!")
         pygame.init()
-        self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
-        self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self._elapsed = 0
+        self.draw_engine.init()
 
     def clear(self):
         self._drawables = []
@@ -105,11 +114,8 @@ class World:
             self.tick()
 
         # rendering
-        self.buffer.fill((*self.background_color, 255))
-        for d in sorted(self._drawables, key=lambda d: d._z_index):
-            d.draw()
-        self.screen.blit(self.buffer, (0, 0))
-        pygame.display.flip()
+        self.draw_engine.render(self.background_color, self._drawables)
+
 
 
 # our singleton instance

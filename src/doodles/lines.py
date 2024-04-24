@@ -1,6 +1,5 @@
 import math
 import random
-import pygame
 from typing import Callable
 from .doodles import Doodle
 from .world import world

@@ -1,5 +1,4 @@
 import random
-import pygame
 from .doodles import Doodle
 from .world import world
 
