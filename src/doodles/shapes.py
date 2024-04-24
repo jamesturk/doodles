@@ -1,6 +1,7 @@
 import random
 import pygame
 from .doodles import Doodle
+from .world import world
 
 
 class Circle(Doodle):
@@ -15,8 +16,9 @@ class Circle(Doodle):
     def __repr__(self):
         return f"Circle(pos={self.world_vec}, radius={self._radius}, {self._color}, parent={self._parent}))"
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.rgba, self.world_vec, self._radius)
+    def draw(self):
+        # TODO: do we need to override draw? can we move this to Doodle.draw
+        world.draw_engine.circle_draw(self)
 
     def radius(self, r: float) -> "Doodle":
         """
@@ -24,6 +26,10 @@ class Circle(Doodle):
         """
         self._radius = r
         return self
+
+    @property
+    def radius_val(self) -> float:
+        return self._radius
 
     def grow(self, by: float):
         """
@@ -50,14 +56,8 @@ class Rectangle(Doodle):
     def __repr__(self):
         return f"Rect(pos={self.world_vec}, width={self._width}, height={self._height}, parent={self._parent})"
 
-    def draw(self, screen):
-        rect = pygame.Rect(
-            self.world_x - self._width / 2,
-            self.world_y - self._height / 2,
-            self._width,
-            self._height,
-        )
-        pygame.draw.rect(screen, self._color, rect)
+    def draw(self):
+        world.draw_engine.rect_draw(self)
 
     def width(self, w: float) -> "Doodle":
         """

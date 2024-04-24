@@ -1,5 +1,26 @@
 from .color import Color
 import pygame
+# TODO: fix this with a dynamic load
+from .draw_engine import DrawEngine
+
+
+class PygameDrawEngine(DrawEngine):
+    def circle_draw(self, c: "Circle"):
+        pygame.draw.circle(world.buffer, c.rgba, c.world_vec, c.radius_val)
+
+    def rect_draw(self, r: "Rectangle"):
+        # TODO: make accessors
+        rect = pygame.Rect(
+            r.world_x - r._width / 2,
+            r.world_y - r._height / 2,
+            r._width,
+            r._height,
+        )
+        pygame.draw.rect(world.buffer, r.rgba, rect)
+
+    def line_draw(self, ll: "Line"):
+        print("line_draw", ll)
+        pygame.draw.aaline(world.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
 
 class World:
@@ -48,6 +69,7 @@ class World:
         self._drawables = []
         self.background_color = Color.WHITE
         self.screen = None
+        self.draw_engine = PygameDrawEngine()
 
     def init(self):
         """
@@ -85,7 +107,7 @@ class World:
         # rendering
         self.buffer.fill((*self.background_color, 255))
         for d in sorted(self._drawables, key=lambda d: d._z_index):
-            d.draw(self.buffer)
+            d.draw()
         self.screen.blit(self.buffer, (0, 0))
         pygame.display.flip()
 
