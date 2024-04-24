@@ -46,7 +46,7 @@ class Doodle(ABC):
         world.add(self)
 
     @abstractmethod
-    def draw(self, screen) -> None:
+    def draw(self) -> None:
         """
         All doodles need to be drawable, but there is no
         way we can provide an implementation without
@@ -231,7 +231,7 @@ class Group(Doodle):
     def __repr__(self):
         return f"Group(pos={self.world_vec}, doodles={len(self._doodles)})"
 
-    def draw(self, screen):
+    def draw(self):
         """
         Groups, despite being an abstract concept, are drawable.
         To draw a group is to draw everything in it.

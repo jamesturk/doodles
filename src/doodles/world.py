@@ -1,5 +1,100 @@
 from .color import Color
 import pygame
+# TODO: fix this with a dynamic load
+from .draw_engine import DrawEngine
+
+# TODO: make configurable
+DEFAULT_FONT_SIZE = 24
+
+
+class PygameDrawEngine(DrawEngine):
+    # Having each bit of text on the screen load a separate copy
+    # of its font would be wasteful, since the most common case would
+    # be for most text to use the same font.
+    #
+    # The solution here is to use a class attribute, shared by *all* instances
+    # of the class.
+    #
+    # This is an implementation of the Flyweight design pattern, which
+    # allows multiple objects to share some state.
+    #
+    # This can quickly become a mess if the shared state is mutable,
+    # note that here, once a font is loaded it does not change.
+    # This avoids nearly all pitfalls associated with this approach.
+    _fonts: dict[str, pygame.font.Font] = {}
+
+    # this method is attached to the class `Text`, not individual instances
+    # like normal methods (which take self as their implicit parameter)
+    @classmethod
+    def make_font(cls, name, size, font=None, bold=False, italic=False):
+        """
+        The way fonts work in most graphics libraries requires choosing a font
+        size, as well as any variation (bold, italic) at the time of creation.
+
+        It would be nice if we could allow individual Text objects vary these,
+        but doing so would be much more complex or require significantly more
+        memory.
+        """
+        if font is None:
+            font = pygame.font.Font(None, size)
+        else:
+            path = pygame.font.match_font(font, bold=bold, italic=italic)
+            font = pygame.font.Font(path, size)
+        cls._fonts[name] = font
+
+    @classmethod
+    def get_font(cls, name=None):
+        if not name:
+            # None -> default font
+            # load on demand
+            if None not in cls._fonts:
+                cls._fonts[None] = pygame.font.Font(None, DEFAULT_FONT_SIZE)
+            return cls._fonts[None]
+        else:
+            return cls._fonts[name]
+
+    def init(self):
+        self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
+        self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
+
+        # TODO: depending on system these fonts often do not have all the
+        # necessary characters, find 3 widely available fonts that do
+        world.draw_engine.make_font("small", 16, "mono")
+        world.draw_engine.make_font("medium", 24, "copperplate")
+        world.draw_engine.make_font("large", 48, "papyrus")
+
+    def render(self, background_color: Color, drawables: list["Doodle"]):
+        self.buffer.fill((*background_color, 255))
+        for d in sorted(drawables, key=lambda d: d._z_index):
+            d.draw()
+        self.screen.blit(self.buffer, (0, 0))
+        pygame.display.flip()
+
+    def circle_draw(self, c: "Circle"):
+        pygame.draw.circle(self.buffer, c.rgba, c.world_vec, c.radius_val)
+
+    def rect_draw(self, r: "Rectangle"):
+        # TODO: make accessors
+        rect = pygame.Rect(
+            r.world_x - r._width / 2,
+            r.world_y - r._height / 2,
+            r._width,
+            r._height,
+        )
+        pygame.draw.rect(self.buffer, r.rgba, rect)
+
+    def line_draw(self, ll: "Line"):
+        pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
+
+    def text_render(self, text: str, font: str, color: Color) -> "TODO":
+        """ returns an intermediated RenderedText """
+        # TODO: add accessor text_val
+        return font.render(text, True, color)
+
+    def text_draw(self, txt: "Text"):
+        # this is a tight coupling, intentionally left
+        text_rect = txt._rendered.get_rect(center=txt.world_vec)
+        self.buffer.blit(txt._rendered, text_rect)
 
 
 class World:
@@ -48,6 +143,7 @@ class World:
         self._drawables = []
         self.background_color = Color.WHITE
         self.screen = None
+        self.draw_engine = PygameDrawEngine()
 
     def init(self):
         """
@@ -57,10 +153,9 @@ class World:
         if self.screen:
             raise ValueError("Can't initialize world twice!")
         pygame.init()
-        self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
-        self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
         self.clock = pygame.time.Clock()
         self._elapsed = 0
+        self.draw_engine.init()
 
     def clear(self):
         self._drawables = []
@@ -83,11 +178,8 @@ class World:
             self.tick()
 
         # rendering
-        self.buffer.fill((*self.background_color, 255))
-        for d in sorted(self._drawables, key=lambda d: d._z_index):
-            d.draw(self.buffer)
-        self.screen.blit(self.buffer, (0, 0))
-        pygame.display.flip()
+        self.draw_engine.render(self.background_color, self._drawables)
+
 
 
 # our singleton instance

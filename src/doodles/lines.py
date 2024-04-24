@@ -1,8 +1,8 @@
 import math
 import random
-import pygame
 from typing import Callable
 from .doodles import Doodle
+from .world import world
 
 
 class Line(Doodle):
@@ -22,7 +22,7 @@ class Line(Doodle):
     def __repr__(self):
         return f"Line(pos={self.world_vec}, end={self.end_vec}, {self._color})"
 
-    def draw(self, screen):
+    def draw(self):
         """
         Implementation of the abstract draw function for the line.
 
@@ -41,7 +41,7 @@ class Line(Doodle):
         to the class and gaining flexibility from separating
         presentation logic from data manipulation.
         """
-        pygame.draw.aaline(screen, self._color, self.world_vec, self.end_vec)
+        world.draw_engine.line_draw(self)
 
     def to(self, x: float, y: float) -> "Doodle":
         """
