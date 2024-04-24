@@ -2,12 +2,6 @@ import random
 import itertools
 from doodles import Group, Circle, Color, Text
 
-# TODO: depending on system these fonts often do not have all the
-# necessary characters, find 3 widely available fonts that do
-Text.make_font("small", 16, "mono")
-Text.make_font("medium", 24, "copperplate")
-Text.make_font("large", 48, "papyrus")
-
 # Via ChatGPT
 hello_world = [
     "Hello, World!",  # English
