@@ -1,10 +1,12 @@
+"""
+This is the most complex/implementation specific module.
+
+TODO: this should be split into two modules once there
+      is a non-Pygame implementation.
+"""
 from .color import Color
 import pygame
-# TODO: fix this with a dynamic load
 from .draw_engine import DrawEngine
-
-# TODO: make configurable
-DEFAULT_FONT_SIZE = 24
 
 
 class PygameDrawEngine(DrawEngine):
@@ -22,38 +24,32 @@ class PygameDrawEngine(DrawEngine):
     # note that here, once a font is loaded it does not change.
     # This avoids nearly all pitfalls associated with this approach.
     _fonts: dict[str, pygame.font.Font] = {}
+    DEFAULT_FONT_SIZE = 24
 
-    # this method is attached to the class `Text`, not individual instances
-    # like normal methods (which take self as their implicit parameter)
-    @classmethod
-    def make_font(cls, name, size, font=None, bold=False, italic=False):
-        """
-        The way fonts work in most graphics libraries requires choosing a font
-        size, as well as any variation (bold, italic) at the time of creation.
-
-        It would be nice if we could allow individual Text objects vary these,
-        but doing so would be much more complex or require significantly more
-        memory.
-        """
-        if font is None:
-            font = pygame.font.Font(None, size)
-        else:
-            path = pygame.font.match_font(font, bold=bold, italic=italic)
-            font = pygame.font.Font(path, size)
-        cls._fonts[name] = font
-
-    @classmethod
-    def get_font(cls, name=None):
-        if not name:
-            # None -> default font
-            # load on demand
-            if None not in cls._fonts:
-                cls._fonts[None] = pygame.font.Font(None, DEFAULT_FONT_SIZE)
-            return cls._fonts[None]
-        else:
-            return cls._fonts[name]
+    # Required Interface Methods ##############
 
     def init(self):
+        """
+        This is a deferred-constructor of sorts.
+
+        We don't do this work in `__init__` since we have less control
+        over when the object is created than when we actually want to do
+        the platform-specific initialization.
+
+        For example, by the point this is called, we need to have called
+        `pygame.init()`, but that would require us know that, and only construct
+        the object after it was called, ex:
+
+        # this would break
+        engine = PygameDrawEngine()
+        pygame.init()
+
+        # this would work
+        pygame.init()
+        engine = PygameDrawEngine()
+
+        This isn't a perfect solution to that problem, but a fair compromise for now.
+        """
         self.screen = pygame.display.set_mode((world.WIDTH, world.HEIGHT))
         self.buffer = pygame.Surface((world.WIDTH, world.HEIGHT), pygame.SRCALPHA)
 
@@ -87,14 +83,42 @@ class PygameDrawEngine(DrawEngine):
         pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
     def text_render(self, text: str, font: str, color: Color) -> "TODO":
-        """ returns an intermediated RenderedText """
-        # TODO: add accessor text_val
+        """returns an intermediated RenderedText"""
         return font.render(text, True, color)
 
     def text_draw(self, txt: "Text"):
         # this is a tight coupling, intentionally left
         text_rect = txt._rendered.get_rect(center=txt.world_vec)
         self.buffer.blit(txt._rendered, text_rect)
+
+    def make_font(self, name, size, font=None, bold=False, italic=False):
+        """
+        The way fonts work in most graphics libraries requires choosing a font
+        size, as well as any variation (bold, italic) at the time of creation.
+
+        It would be nice if we could allow individual Text objects vary these,
+        but doing so would be much more complex or require significantly more
+        memory.
+        """
+        if font is None:
+            font = pygame.font.Font(None, size)
+        else:
+            path = pygame.font.match_font(font, bold=bold, italic=italic)
+            font = pygame.font.Font(path, size)
+        self._fonts[name] = font
+
+    def get_font(self, name=None):
+        """
+        Load a font by name, if no name is given, use the default font.
+        """
+        if not name:
+            # None -> default font
+            # load on demand
+            if None not in self._fonts:
+                self._fonts[None] = pygame.font.Font(None, self.DEFAULT_FONT_SIZE)
+            return self._fonts[None]
+        else:
+            return self._fonts[name]
 
 
 class World:
@@ -179,7 +203,6 @@ class World:
 
         # rendering
         self.draw_engine.render(self.background_color, self._drawables)
-
 
 
 # our singleton instance

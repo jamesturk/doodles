@@ -7,8 +7,15 @@ class Color:
 
     This is done to group many global variables into a namespace for clarity.
 
-    There is no intention for anyone to ever declare an instance of this class.
-    Instead it will be used like Color.BLACK
+    There is no reason for anyone to ever declare an instance of this class.
+    Instead it will be used like Color.BLACK.
+
+    Another option would be to just have these be bare methods
+    at the `color` module and encourage use like color.random()
+
+    The two are equivalent, but this way was chosen as a demonstration
+    and to make `from colors import random` impossible, since that would
+    be confusing downstream.
 
     Palette Source: https://pico-8.fandom.com/wiki/Palette
     """
@@ -30,6 +37,9 @@ class Color:
     PINK = (255, 119, 168)
     LIGHT_PEACH = (255, 204, 170)
 
+    def __init__(self):
+        raise NotImplementedError("Color is not meant to be invoked directly")
+
     @staticmethod
     def all():
         colors = list(Color.__dict__.values())
@@ -38,10 +48,3 @@ class Color:
     @staticmethod
     def random():
         return random.choice(Color.all())
-
-
-# Another option would be to just have these be bare methods at the `color` module and
-# encourage use like color.random()
-
-# The two are equivalent, but this way makes someone accidentally importing `random()`
-# impossible.

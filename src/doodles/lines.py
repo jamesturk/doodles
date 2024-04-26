@@ -1,3 +1,9 @@
+"""
+Class to draw lines.
+
+This is the most well-documented version of a concrete doodle,
+the easiest to learn from.
+"""
 import math
 import random
 from typing import Callable
@@ -6,6 +12,11 @@ from .world import world
 
 
 class Line(Doodle):
+    # Adds one attribute to Doodle: the distance/offset vector
+    # from the position.  Together these form the end points of the
+    # line.
+    _offset_vec: tuple[float, float]
+
     def __init__(self, parent=None):
         """
         We keep the same interface as Doodle, to follow the Liskov substitution
@@ -26,22 +37,18 @@ class Line(Doodle):
         """
         Implementation of the abstract draw function for the line.
 
-        Note: This is a classic violation of single responsibility.
+        This class passes the responsibility of actually drawing to
+        the world.draw_engine, which is designed to be configurable.
 
-        Instead, you could imagine a class like:
+        An earlier version had Pygame drawing code in here, but that
+        violated the Single Responsibility Principle.
 
-        class DrawingBackend:
-            def draw_doodle(doodle_type, doodle): ...
-
-        class PygameBackend(DrawingBackend):
-            def draw_line(...): ...
-
-        This would make it possible to attach different
-        drawing backends, restoring single-responsibility
-        to the class and gaining flexibility from separating
-        presentation logic from data manipulation.
+        Instead, as a pass-through, the actual drawing logic is not coupled
+        to the mathematical representation of a line.
         """
         world.draw_engine.line_draw(self)
+
+    ## Setters / Modifiers / Getters ##############
 
     def to(self, x: float, y: float) -> "Doodle":
         """
@@ -58,7 +65,12 @@ class Line(Doodle):
 
     def vec(self, degrees: float, magnitude: float):
         """
-        Alternate constructor, to create offset vector from angle & length.
+        Alternate setter, to create offset vector from angle & length.
+
+        This is similar to the constructor/alternate constructor concept
+        where there's a base constructor that sets the propertries
+        directly (`to`), but there is also an alternate option
+        that handles commonly used case.
         """
         if isinstance(degrees, Callable):
             self.register_update(
@@ -75,9 +87,10 @@ class Line(Doodle):
 
     def random(self) -> "Doodle":
         """
-        Overrides the parent's random, by extending the behavior.
+        Overrides the parent's random, since a random line
+        also needs to have a offset vector.
 
-        This is an example of the open/closed principle.
+        This is an example of the **Open/Closed Principle**.
         We aren't modifying the parent classes' random function
         since doing so would be fragile and break if the
         parent class added more options.
@@ -93,7 +106,8 @@ class Line(Doodle):
     @property
     def end_vec(self):
         """
-        Parallel to world_vec for end of line.
+        Line goes from world_x, world_y to this position which
+        results from adding (world_x, world_y) + (offset_x, offset_y).
         """
         return (
             self.world_x + self._offset_vec[0],

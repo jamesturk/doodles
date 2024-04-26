@@ -1,3 +1,10 @@
+"""
+Adds more drawables, like `lines`.  For the most part
+these classes only differ from `Line` in implementation.
+
+The interface & decisions are the same but specific
+to `Circle` and `Rectangle`.
+"""
 import random
 from .doodles import Doodle
 from .world import world
@@ -5,9 +12,6 @@ from .world import world
 
 class Circle(Doodle):
     def __init__(self, parent=None):
-        """
-        This is a less interesting class than Line, but very similar.
-        """
         super().__init__(parent)
         # circle is a position & radius
         self._radius = 0
@@ -60,22 +64,19 @@ class Rectangle(Doodle):
 
     def width(self, w: float) -> "Doodle":
         """
-        A setter for the width
+        Set new width.
         """
         self._width = w
         return self
 
     def height(self, h: float) -> "Doodle":
         """
-        A setter for the height
+        Set new height.
         """
         self._height = h
         return self
 
     def grow(self, dw: float, dh: float):
-        """
-        Modify radius by an amount. (Negative to shrink.)
-        """
         return self.width(self._w + dw).height(self._h + dh)
 
     def random(self, upper=100) -> "Doodle":

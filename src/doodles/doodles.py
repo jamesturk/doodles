@@ -1,6 +1,19 @@
+"""
+This module defines the base interface that all Doodle objects
+will need to implement.
+
+It defines two classes: Doodle and Group.
+
+Their docstrings will give specific detail, but the implementations
+are closely linked, as a Group is both a type of Doodle and contains
+a collection of additional Doodle-derived classes.
+
+This is a reasonable example of when two classes might reasonable share a file.
+"""
 import random
 import copy
 from abc import ABC, abstractmethod
+from typing import Callable, Self
 from .color import Color
 from .world import world
 
@@ -17,18 +30,35 @@ class Doodle(ABC):
 
     Doodles are drawn relative to their parent, so if a circle
     is placed at (100, 100) and has a child point placed at (10, 10)
-    that point would appear at (110, 110).
+    that point would appear ag (110, 110).
 
     Careful attention is paid in this inheritance hierarchy to the
     Liskov substitution principle.
     """
 
+    # annotations for instance attributes
+    _parent: Self | None
+    _updates: list[Callable]
+    _color: tuple[int, int, int]
+    _alpha: int
+    _z_index: int
+
     def __init__(self, parent=None):
+        # To avoid all child constructors having an ever-expanding
+        # number of parameters as more customization options arrive,
+        # the design decision was made
+        # that at creation time, all Doodles will have defaults
+        # positioned at (0, 0), black, opaque, etc.
+        #
+        # All child classes should follow this same guidance
+        # setting a *visible* (i.e. non-zero) default.
         self._parent = parent
         self._updates = []
         self._color = parent._color if parent else Color.BLACK
         self._alpha = parent._alpha if parent else 255
         self._z_index = 0
+
+        # Design Note:
         # Is storing this vector in a tuple the right thing to do?
         # It might make more sense to store _x and _y, or use
         # a library's optimized 2D vector implementation.
@@ -36,12 +66,19 @@ class Doodle(ABC):
         # All references to _pos_vec are internal to the class,
         # so it will be trivial to swap this out later.
         self._pos_vec = (0, 0)
+
         self._register()
 
     def _register(self):
-        """register with parent and world"""
+        """
+        This private method ensures that the parent
+        knows about the child object.
+
+        It also registers every drawable object with the
+        World singleton (see world.py) which ensures that
+        it is drawn.
+        """
         if self._parent:
-            # register with parent for updates
             self._parent.add(self)
         world.add(self)
 
@@ -56,6 +93,31 @@ class Doodle(ABC):
         derived classes will be forced to conform to it.
         """
         pass
+
+    def copy(self) -> Self:
+        """
+        It will be useful to have the ability to obtain a copy
+        of a given doodle to create repetitive designs.
+
+        This method is provided to fit the chained-object pattern
+        that will be used by the rest of the Doodle API.
+
+        Additionally, while a shallow copy is enough for most
+        cases, it will be possible for child classes to override
+        this.
+        """
+        new = copy.copy(self)
+        new._register()
+        return new
+
+    # Dynamic Update Logic ############
+
+    # These methods relate to a WIP feature
+    # designed to demonstrate a functional hybrid
+    # approach to having objects update themselves.
+    #
+    # This feature isn't complete, or documented yet.
+    # TODO
 
     def register_update(self, method, *args):
         self._updates.append((method, args))
@@ -72,25 +134,16 @@ class Doodle(ABC):
             evaled_args = [arg() for arg in args]
             method(*evaled_args)
 
-    def copy(self) -> "Doodle":
-        """
-        It will be useful to have the ability to obtain a copy
-        of a given doodle to create repetitive designs.
-
-        This method is provided to fit the chained-object pattern
-        that will be used by the rest of the Doodle API.
-
-        Additionally, while a shallow copy is enough for most
-        cases, it will be possible for child classes to override
-        this.
-        """
-        new = copy.copy(self)
-        new._register()
-        return new
-
     # Setters #######################
 
-    def color(self, color: tuple[int, int, int]) -> "Doodle":
+    # As noted in the design documentation, the decision
+    # was made to have setters be the name of the attribute.
+    #
+    # These modify & return the object.
+    #
+    # All setters (and modifiers) must return self.
+
+    def color(self, color: tuple[int, int, int]) -> Self:
         """
         Color works as a kind of setter function.
 
@@ -100,7 +153,7 @@ class Doodle(ABC):
         self._color = color
         return self
 
-    def pos(self, x: float, y: float) -> "Doodle":
+    def pos(self, x: float, y: float) -> Self:
         """
         Another setter, just like color.
 
@@ -109,26 +162,28 @@ class Doodle(ABC):
         self._pos_vec = (x, y)
         return self
 
-    def x(self, x: float) -> "Doodle":
+    def x(self, x: float) -> Self:
         """
         Setter for x component.
         """
         self._pos_vec = (x, self._pos_vec[1])
+        return self
 
-    def y(self, y: float) -> "Doodle":
+    def y(self, y: float) -> Self:
         """
         Setter for x component.
         """
         self._pos_vec = (self._pos_vec[0], y)
+        return self
 
-    def alpha(self, a: int) -> "Doodle":
+    def alpha(self, a: int) -> Self:
         """
         Setter for alpha transparency
         """
         self._alpha = a
         return self
 
-    def z(self, z: float) -> "Doodle":
+    def z(self, z: float) -> Self:
         """
         Setter for z_index
         """
@@ -137,7 +192,13 @@ class Doodle(ABC):
 
     # Modifiers #################
 
-    def move(self, dx: float, dy: float) -> "Doodle":
+    # These modify properties like setters, but allow
+    # multiple operations to be done in a single call.
+    #
+    # They can also take advantage of knowledge of current
+    # state, like `move` which applies a delta to the position.
+
+    def move(self, dx: float, dy: float) -> Self:
         """
         This shifts the vector by a set amount.
 
@@ -147,7 +208,7 @@ class Doodle(ABC):
         """
         return self.pos(self._pos_vec[0] + dx, self._pos_vec[1] + dy)
 
-    def random(self) -> "Doodle":
+    def random(self) -> Self:
         """
         Randomize the position and color.
         """
@@ -168,9 +229,12 @@ class Doodle(ABC):
         return the screen position derived from the parent position
         plus the current object's x component.
 
+        If a parent object is at (100, 100) and the child is at (10, 10)
+        that should come through as (110, 110) in world coordinates.
+
         Note the recursion here, parent.world_x is an instance of doodle.world_x.
 
-        For example:
+        For another example:
 
         A x = 100
         |--------B x = 10
@@ -203,12 +267,19 @@ class Doodle(ABC):
     @property
     def rgba(self) -> (int, int, int, int):
         """
+        Access for color+alpha, used by draw functions
+        which need a 4-tuple.
         """
         return (*self._color, self._alpha)
 
 
 class Group(Doodle):
     """
+    A concrete-in-implementation, abstract-in-concept doodle.
+
+    A group is merely a list of other doodles, allowing
+    doodles to be arranged/moved/updated in a tree-like manner.
+
     For now, only Group objects can have child doodles.
     It may be desirable to let any object serve as a parent
     but for now, groups are needed.
@@ -225,71 +296,104 @@ class Group(Doodle):
     """
 
     def __init__(self, parent=None):
+        # Like all constructors derived from doodle, this constructor
+        # initializes the parent Doodle class, and then adds its own
+        # additional attributse.
         super().__init__(parent)
         self._doodles = []
 
     def __repr__(self):
         return f"Group(pos={self.world_vec}, doodles={len(self._doodles)})"
 
-    def draw(self):
+    def draw(self) -> None:
         """
         Groups, despite being an abstract concept, are drawable.
         To draw a group is to draw everything in it.
 
         This is done by default, since all drawables will be
         registered with the scene upon creation.
+
+        Thus the *complete* implementation of this function
+        is to "pass", the drawing will be handled by the child
+        doodles.
+        (If they weren't already registered with the world singleton
+        this would loop over all child doodles and draw them).
         """
         pass
 
     def copy(self) -> "Group":
         """
-        An override.
-
-        We are storing a list, so deep copies are necessary.
+        An override of copy that handles the special
+        case of having a mutable list of Doodles
+        as an attribute.
         """
-        new = copy.copy(self)
-        new._register()
+        # still a shallow copy of base data since
+        # we're going to overwrite _doodles separately
+        new = super().copy()
         new._doodles = []
         for child in self._doodles:
+            # this code happens outside of Doodle.copy so that
+            # the child is never accidentally registered with
+            # the old parent
             child = copy.copy(child)
             child._parent = new
             child._register()
         return new
 
-    def color(self, color: tuple[int, int, int]) -> "Doodle":
+    def color(self, color: tuple[int, int, int]) -> Doodle:
         """
-        Another override.
+        An override of Doodle.color.
 
-        Nothing will ever be drawn in the parent
-        color, but we do want to have the set
-        cascade down to child objects.
+        What _color should do on Groups is a bit ambiguous.
 
-        We don't cascade pos() calls, why not?
+        The way parent-child relationships work here means
+        this color will never be used directly.
+        Instead the decision was made that child objects
+        will be colored by a call to this, and new
+        children will be colored the color set on the parent
+        group when added.
+
+        Subsequent calls to color on child elements will recolor them
+        allowing a group to have different colors within it.
+
+        The position is handled differently (see world_x)
+        since a moving parent should always move the children.
         """
         super().color(color)
         for d in self._doodles:
             d.color(color)
         return self
 
-    def add(self, doodle: "Doodle") -> "Group":
+    def add(self, doodle: Doodle) -> Self:
         """
         The only unique method of this class, allowing us
         to add objects to the group.
 
-        Note the violation of class boundaries here.
+        A simple implementation, but note that we set doodle._parent.
+
+        This assignment is, strictly speaking, a violation of class
+        boundaries. Sometimes two classes work together
+        in a way that makes this necessary, as noted above.
+        In some languages this would be done via a "protected"
+        attribute, which is a status between public and private
+        that only lets certain classes access internals.
+
+        In Python, _parent is merely a suggestion,
+        and in this case, it is a suggestion that we can safely
+        ignore.
+
+        These classes are tightly coupled to one another,
+        hence their implementations living side-by-side and
+        being allowed to peek at one another's internals.
+
+        The alternative would be to have a set_parent() method
+        but since we want groups to add children and not vice-versa
+        there's no reason to add set_parent() to Doodle since
+        it shouldn't be called by anything other than Group.
+
+        So in effect, we're ensuring the encapsulation of Doodle's
+        behavior everywhere else by breaking that rule here.
         """
         self._doodles.append(doodle)
         doodle._parent = self
-        # This assignment is, strictly speaking, a violation of class
-        # boundaries. Sometimes two classes work together
-        # in a way that makes this necessary, as noted above.
-        # In some languages this would be done via a "protected"
-        # attribute, which is a status between public and private
-        # that only lets certain classes access internals.
-        #
-        # In Python, _parent is merely a suggestion,
-        # and since it is likely that the same author wrote both
-        # classes, it is a suggestion that we can safely ignore
-        # if we understand the implications of tightly
-        # binding the implementations of these two classes.
         return self
