@@ -232,6 +232,12 @@ Some other patterns under consideration would be Observer, Factor, and Visitor.
 
 All of these might have interesting applications in making art this way. (PRs welcome :))
 
+## Refactors
+
+Interesting refactors will be done via PR:
+
+* https://github.com/jamesturk/doodles/pull/1 - Extract DrawEngine interface from draw() methods, restoring single responsibility to all drawables.
+
 ## Rationales
 
 A few more rationales for reason that certain decisions were made, particularly when they were not my first thought.
