@@ -1,4 +1,14 @@
 import abc
+from typing import TYPE_CHECKING
+
+# this is needed because of circular references
+if TYPE_CHECKING:
+    from .colors import Color
+    from .doodles import Doodle
+    from .shapes import Rectangle, Circle
+    from .lines import Line
+    from .text import Text
+
 
 
 class DrawEngine(abc.ABC):
@@ -48,7 +58,7 @@ class DrawEngine(abc.ABC):
         """
 
     @abc.abstractmethod
-    def rect_draw(self, rect: "Rect"):
+    def rect_draw(self, rect: "Rectangle"):
         """
         Method to draw a Rectangle obj.
         """

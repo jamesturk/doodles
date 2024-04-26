@@ -1,6 +1,6 @@
 import random
 import itertools
-from doodles import Group, Circle, Color, Text
+from doodles import Color, Text
 
 # Via ChatGPT
 hello_world = [

@@ -16,7 +16,6 @@ some expensive logic.
 
 Look at _render() for more.
 """
-import pygame
 from .doodles import Doodle
 from .world import world
 

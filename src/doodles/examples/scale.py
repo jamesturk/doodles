@@ -8,4 +8,4 @@ def tri():
     return g
 
 def create():
-    r = tri().move(200, 200)
+    tri().move(200, 200)

@@ -4,10 +4,17 @@ This is the most complex/implementation specific module.
 TODO: this should be split into two modules once there
       is a non-Pygame implementation.
 """
-from .color import Color
+from typing import TYPE_CHECKING
 import pygame
+from .color import Color
 from .draw_engine import DrawEngine
 
+# this is needed because of circular references
+if TYPE_CHECKING:
+    from .doodles import Doodle
+    from .shapes import Rectangle, Circle
+    from .lines import Line
+    from .text import Text
 
 class PygameDrawEngine(DrawEngine):
     # Having each bit of text on the screen load a separate copy
@@ -82,7 +89,8 @@ class PygameDrawEngine(DrawEngine):
     def line_draw(self, ll: "Line"):
         pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
-    def text_render(self, text: str, font: str, color: Color) -> "TODO":
+    # TODO: return type?
+    def text_render(self, text: str, font: str, color: Color):
         """returns an intermediated RenderedText"""
         return font.render(text, True, color)
 

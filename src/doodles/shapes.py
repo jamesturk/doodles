@@ -17,7 +17,7 @@ class Circle(Doodle):
         self._radius = 0
 
     def __repr__(self):
-        return f"Circle(pos={self.world_vec}, radius={self._radius}, {self._color}, parent={self._parent}))"
+        return f"Circle(pos={self.world_vec}, radius={self._radius}, {self._color})"
 
     def draw(self):
         # TODO: do we need to override draw? can we move this to Doodle.draw
@@ -57,7 +57,7 @@ class Rectangle(Doodle):
         self._height = 100
 
     def __repr__(self):
-        return f"Rect(pos={self.world_vec}, width={self._width}, height={self._height}, parent={self._parent})"
+        return f"Rect(pos={self.world_vec}, width={self._width}, height={self._height})"
 
     def draw(self):
         world.draw_engine.rect_draw(self)
