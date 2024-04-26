@@ -28,7 +28,53 @@ Feel free to modify the existing examples (`doodles/examples` or add your own).
 
 ## Architecture
 
-TODO
+This application is meant to create small animations/sketches.
+
+`main.py` contains the core application code, but is the least relevant to the design.
+
+```mermaidjs
+erDiagram
+    Doodle ||--o| Doodle : parent
+    Group ||--o{ Doodle : has-many 
+    Doodle ||--|| Group: is-a
+    Doodle ||--|| Line : is-a
+    Doodle ||--|| Circle : is-a
+    Doodle ||--|| Rectangle : is-a
+    Doodle ||--|| Text : is-a
+    World ||--o{ Doodle : has-many
+    World ||--|| DrawEngine : has-one
+    PygameDrawEngine ||--|| DrawEngine : is-a
+```
+
+The core of the application relies on a `Doodle` class, defined in `doodles.py`.
+This provides the basic interface for defining a piece of the drawing.
+
+It is an abstract base class, and comes with 5 implementations:
+
+* `Group`
+* `Line`
+* `Circle`
+* `Rectangle`
+* `Text`
+
+Each of these is a concrete class that can be drawn to the screen, whereas the base `Doodle` cannot be.
+
+A doodle is created by defining a `create` method (see any file in `examples/`) that instantitates instances to be drawn.
+
+As objects are created, they are registered with the `World`, which is a global singleton that tracks the complete state of the objects on the screen, and updates them as needed.
+
+`Doodle` (via `World`) delegates the responsibility of actually drawing the objects to a `DrawEngine` to separate out the responsibilities and to make it possible to switch out engines without changing the doodle code.
+
+A recommended order to read the files would be as follows:
+
+0) Run the examples as documented above and take a look at the corresponding code in `examples/`.
+1) `doodles.py`         - Look at the base `Doodle` class and how `Group` interacts with it to form a tree.
+2) `lines.py`            - A fully concrete implementation of how an abstract doodle can be made whole.  If you want more examples, look to `shapes.py`
+3) `draw_engine.py`     - The other important base class, where responsibility for drawing is implemented.
+4) `world.py`           - Contains a lot of implementation code, which can be safely ignored, but useful to see how the engine/doodle interaction is mediated.  This is the least important part of the code to fully understand.
+
+- `text.py` and other files are more advanced implementations and can be ignored or saved for last.
+
 
 ## SOLID Principles
 
