@@ -78,7 +78,7 @@ A recommended order to read the files would be as follows:
 
 ## SOLID Principles
 
-*Single Responsibility*
+### Single Responsibility
 
 The most clear example of the single responsibility principle is that shapes do
 not draw themselves.
@@ -92,7 +92,7 @@ This follows single responsibility, and gains a tangible benefit from it.
 
 (See `lines.py draw` for a bit more discussion of this.)
 
-*Open/Closed*
+### Open/Closed
 
 This principle asks that behaviors are extensible by inheritance,
 not requiring modification to the base classes behavior.
