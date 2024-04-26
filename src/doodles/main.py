@@ -16,6 +16,7 @@ from pathlib import Path
 import pygame
 import importlib
 import typer
+from typing import Optional
 from .world import world
 
 
@@ -54,7 +55,7 @@ def load_module(modname: str):
     return mod.create()
 
 
-def main(modname: str = None):
+def main(modname: Optional[str] = None):
     """
     Entrypoint method.
 

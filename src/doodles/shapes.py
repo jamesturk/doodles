@@ -5,6 +5,7 @@ these classes only differ from `Line` in implementation.
 The interface & decisions are the same but specific
 to `Circle` and `Rectangle`.
 """
+from typing import Self
 import random
 from .doodles import Doodle
 from .world import world
@@ -23,7 +24,7 @@ class Circle(Doodle):
         # TODO: do we need to override draw? can we move this to Doodle.draw
         world.draw_engine.circle_draw(self)
 
-    def radius(self, r: float) -> "Doodle":
+    def radius(self, r: float) -> Self:
         """
         A setter for the circle's radius.
         """
@@ -40,7 +41,7 @@ class Circle(Doodle):
         """
         return self.radius(self._radius + by)
 
-    def random(self) -> "Doodle":
+    def random(self) -> Self:
         super().random()
         # constrain to 10-100
         return self.radius(random.random() * 90 + 10)
@@ -62,26 +63,26 @@ class Rectangle(Doodle):
     def draw(self):
         world.draw_engine.rect_draw(self)
 
-    def width(self, w: float) -> "Doodle":
+    def width(self, w: float) -> Self:
         """
         Set new width.
         """
         self._width = w
         return self
 
-    def height(self, h: float) -> "Doodle":
+    def height(self, h: float) -> Self:
         """
         Set new height.
         """
         self._height = h
         return self
 
-    def grow(self, dw: float, dh: float):
-        return self.width(self._w + dw).height(self._h + dh)
+    def grow(self, dw: float, dh: float) -> Self:
+        return self.width(self._width + dw).height(self._height + dh)
 
-    def random(self, upper=100) -> "Doodle":
+    def random(self, size: float = 100) -> Self:
         super().random()
         # constrain to 10-100
-        return self.width(random.random() * upper + 10).height(
-            random.random() * upper + 10
+        return self.width(random.random() * size + 10).height(
+            random.random() * size + 10
         )

@@ -41,7 +41,7 @@ class Doodle(ABC):
     _updates: list[Callable]
     _color: tuple[int, int, int]
     _alpha: int
-    _z_index: int
+    _z_index: float
 
     def __init__(self, parent=None):
         # To avoid all child constructors having an ever-expanding
@@ -258,14 +258,14 @@ class Doodle(ABC):
         return self._pos_vec[1]
 
     @property
-    def world_vec(self) -> (float, float):
+    def world_vec(self) -> tuple[float, float]:
         """
         Obtain derived position vector as a 2-tuple.
         """
         return self.world_x, self.world_y
 
     @property
-    def rgba(self) -> (int, int, int, int):
+    def rgba(self) -> tuple[int, int, int, int]:
         """
         Access for color+alpha, used by draw functions
         which need a 4-tuple.
@@ -321,7 +321,7 @@ class Group(Doodle):
         """
         pass
 
-    def copy(self) -> "Group":
+    def copy(self) -> Self:
         """
         An override of copy that handles the special
         case of having a mutable list of Doodles
@@ -340,7 +340,7 @@ class Group(Doodle):
             child._register()
         return new
 
-    def color(self, color: tuple[int, int, int]) -> Doodle:
+    def color(self, color: tuple[int, int, int]) -> Self:
         """
         An override of Doodle.color.
 

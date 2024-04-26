@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .lines import Line
     from .text import Text
 
+
 class PygameDrawEngine(DrawEngine):
     # Having each bit of text on the screen load a separate copy
     # of its font would be wasteful, since the most common case would
@@ -66,7 +67,7 @@ class PygameDrawEngine(DrawEngine):
         world.draw_engine.make_font("medium", 24, "copperplate")
         world.draw_engine.make_font("large", 48, "papyrus")
 
-    def render(self, background_color: Color, drawables: list["Doodle"]):
+    def render(self, background_color: tuple[int, int, int], drawables: list["Doodle"]):
         self.buffer.fill((*background_color, 255))
         for d in sorted(drawables, key=lambda d: d._z_index):
             d.draw()
@@ -89,8 +90,8 @@ class PygameDrawEngine(DrawEngine):
     def line_draw(self, ll: "Line"):
         pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
-    # TODO: return type?
-    def text_render(self, text: str, font: str, color: Color):
+    # TODO: hard to type, revisit
+    def text_render(self, text: str, font, color: tuple[int, int, int]):
         """returns an intermediated RenderedText"""
         return font.render(text, True, color)
 

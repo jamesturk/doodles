@@ -24,4 +24,4 @@ from .color import Color
 from .text import Text
 
 
-__all__ = [Doodle, Group, Line, Circle, Rectangle, Color, Text]
+__all__ = ["Doodle", "Group", "Line", "Circle", "Rectangle", "Color", "Text"]

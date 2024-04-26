@@ -3,12 +3,10 @@ from typing import TYPE_CHECKING
 
 # this is needed because of circular references
 if TYPE_CHECKING:
-    from .colors import Color
     from .doodles import Doodle
     from .shapes import Rectangle, Circle
     from .lines import Line
     from .text import Text
-
 
 
 class DrawEngine(abc.ABC):
@@ -36,6 +34,7 @@ class DrawEngine(abc.ABC):
     isolation (such as a library you want to avoid tight coupling to)
     only is added to a specific class or module.
     """
+
     @abc.abstractmethod
     def init(self):
         """
@@ -44,7 +43,7 @@ class DrawEngine(abc.ABC):
         """
 
     @abc.abstractmethod
-    def render(self, background_color: "Color", drawables: list["Doodle"]):
+    def render(self, background_color: tuple[int, int, int], drawables: list["Doodle"]):
         """
         Workhorse function, should set background and then draw all Doodles.
 
@@ -70,7 +69,7 @@ class DrawEngine(abc.ABC):
         """
 
     @abc.abstractmethod
-    def text_render(self, text: "Text"):
+    def text_render(self, text: str, font: str, color: tuple[int, int, int]):
         """
         Method to pre-render a text object.
         """

@@ -6,7 +6,7 @@ the easiest to learn from.
 """
 import math
 import random
-from typing import Callable
+from typing import Callable, Self
 from .doodles import Doodle
 from .world import world
 
@@ -50,7 +50,7 @@ class Line(Doodle):
 
     ## Setters / Modifiers / Getters ##############
 
-    def to(self, x: float, y: float) -> "Doodle":
+    def to(self, x: float, y: float) -> Self:
         """
         A setter for the line's offset vector.
 
@@ -63,7 +63,7 @@ class Line(Doodle):
         self._offset_vec = (x, y)
         return self
 
-    def vec(self, degrees: float, magnitude: float):
+    def vec(self, degrees: float | Callable, magnitude: float):
         """
         Alternate setter, to create offset vector from angle & length.
 
@@ -72,7 +72,7 @@ class Line(Doodle):
         directly (`to`), but there is also an alternate option
         that handles commonly used case.
         """
-        if isinstance(degrees, Callable):
+        if callable(degrees):
             self.register_update(
                 self.to,
                 lambda: magnitude * math.cos(math.radians(degrees())),
@@ -85,7 +85,7 @@ class Line(Doodle):
             magnitude * math.sin(math.radians(degrees)),
         )
 
-    def random(self) -> "Doodle":
+    def random(self) -> Self:
         """
         Overrides the parent's random, since a random line
         also needs to have a offset vector.
