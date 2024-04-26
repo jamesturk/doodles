@@ -78,6 +78,8 @@ A recommended order to read the files would be as follows:
 
 ## SOLID Principles
 
+<https://en.wikipedia.org/wiki/SOLID>
+
 ### Single Responsibility
 
 The most clear example of the single responsibility principle is that shapes do
