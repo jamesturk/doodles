@@ -25,7 +25,7 @@ jobs:
       run: poetry install
 
     - name: ruff
-      run: ruff src
+      run: poetry run ruff src
 
     # TODO: restore mypy linting
     # - name: mypy
