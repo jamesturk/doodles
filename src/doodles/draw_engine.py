@@ -25,8 +25,6 @@ class DrawEngine(abc.ABC):
     while writing in the first place, and ensure that code needing
     isolation (such as a library you want to avoid tight coupling to)
     only is added to a specific class or module.
-
-    TODO: this got behind the current impl
     """
     @abc.abstractmethod
     def init(self):

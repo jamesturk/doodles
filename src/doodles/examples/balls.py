@@ -21,6 +21,10 @@ class Ball(Circle):
         self.speed = 9 + random.random() * 5
 
     def update(self):
+        """
+        This update method loops the balls around the screen
+        when they fall off the bottom. (A raindrop like effect.)
+        """
         self.move(0, self.speed)
         if self.world_y > world.HEIGHT + 20:
             self.move(0, -world.HEIGHT - 20)
@@ -33,6 +37,9 @@ class GravityBall(Circle):
         self.speed = random.random() * 10
 
     def update(self):
+        """
+        This update method simulates acceleration and a bounce.
+        """
         self.speed += self.accel
         self.move(0, self.speed)
         if self.world_y > world.HEIGHT - 10:
