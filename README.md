@@ -32,7 +32,7 @@ This application is meant to create small animations/sketches.
 
 `main.py` contains the core application code, but is the least relevant to the design.
 
-```mermaidjs
+```mermaid
 erDiagram
     Doodle ||--o| Doodle : parent
     Group ||--o{ Doodle : has-many 
@@ -105,7 +105,7 @@ implementation, and then adding their own random elements.
 
 (See `lines.py random` for a bit more discussion of this.)
 
-*Liskov Substitution*
+### Liskov Substitution
 
 Anywhere that the underlying code expects a `Drawable` it should be possible
 to substitute any child class `Line`, `Rectangle`, etc.
@@ -113,7 +113,7 @@ to substitute any child class `Line`, `Rectangle`, etc.
 This is ensured by having all of them define a common `draw` interface, and having
 their constructors not take dozens of additional parameters. (See `Line.__init__`.)
 
-*Interface Segregation*
+### Interface Segregation
 
 This is largely given by counter-example, the principle here states that we must not force child classes to implement methods they do not use.
 
@@ -122,7 +122,7 @@ A counter-example to this would be if the pre-render, then draw dance that compl
 One could imagine having placed this logic at the `Doodle` class instead of `Line`.
 That would mean that `Circle`, `Rectangle`, etc. would need to implement a (likely empty) method to fulfill this.
 
-*Dependency Inversion*
+### Dependency Inversion
 
 Entities should depend on abstractions, not concrete implementations.
 
