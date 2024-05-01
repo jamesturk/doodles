@@ -126,7 +126,7 @@ class Polygon(Doodle):
             self._points.append(point)
         return self
 
-    def random(self, n_points: int) -> Self:
+    def random(self, n_points: int = 5) -> Self:
         super().random()
         for _ in range(n_points):
             self.point((random.random() * 100 - 50, random.random() * 100 - 50))
