@@ -90,6 +90,12 @@ class PygameDrawEngine(DrawEngine):
     def line_draw(self, ll: "Line"):
         pygame.draw.aaline(self.buffer, ll.rgba, ll.world_vec, ll.end_vec)
 
+    def polygon_draw(self, p: "Polygon"):
+        # calculate offset points from center of world
+        offset_points = [(x + p.world_x, y + p.world_y) for (x, y) in p._points]
+        # draw using anti-aliased lines
+        pygame.draw.aalines(self.buffer, p.rgba, closed=True, points=offset_points)
+
     # TODO: hard to type, revisit
     def text_render(self, text: str, font, color: tuple[int, int, int]):
         """returns an intermediated RenderedText"""

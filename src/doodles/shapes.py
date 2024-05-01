@@ -5,7 +5,7 @@ these classes only differ from `Line` in implementation.
 The interface & decisions are the same but specific
 to `Circle` and `Rectangle`.
 """
-from typing import Self
+from typing import Self, Optional
 import random
 from .doodles import Doodle
 from .world import world
@@ -86,3 +86,48 @@ class Rectangle(Doodle):
         return self.width(random.random() * size + 10).height(
             random.random() * size + 10
         )
+
+
+class Polygon(Doodle):
+    """
+    All points are *relative* to the center point.
+    That is to say, if you had a triangle with coordinates:
+
+        (100, 100)
+        (0, 100)
+        (-100, 0)
+
+    And the object was moved to (50, 50), the actual triangle drawn
+    on screen would be:
+
+        (150, 150)
+        (50, 150)
+        (50, 50)
+    """
+
+    _points: list[tuple[float, float]]
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._points = []
+
+    def __repr__(self):
+        return f"Polygon(pos={self.world_vec}, points={self._points})"
+
+    def draw(self):
+        world.draw_engine.polygon_draw(self)
+
+    def point(
+        self, point: tuple[float, float], to_modify: Optional[int] = None
+    ) -> Self:
+        if to_modify is not None:
+            self._points[to_modify] = point
+        else:
+            self._points.append(point)
+        return self
+
+    def random(self, n_points: int = 5) -> Self:
+        super().random()
+        for _ in range(n_points):
+            self.point((random.random() * 100 - 50, random.random() * 100 - 50))
+        return self

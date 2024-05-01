@@ -63,7 +63,7 @@ class Line(Doodle):
         self._offset_vec = (x, y)
         return self
 
-    def vec(self, degrees: float | Callable, magnitude: float):
+    def vec(self, degrees: float, magnitude: float):
         """
         Alternate setter, to create offset vector from angle & length.
 
@@ -72,14 +72,16 @@ class Line(Doodle):
         directly (`to`), but there is also an alternate option
         that handles commonly used case.
         """
-        if callable(degrees):
-            self.register_update(
-                self.to,
-                lambda: magnitude * math.cos(math.radians(degrees())),
-                lambda: magnitude * math.sin(math.radians(degrees())),
-            )
-            return self
+        return self.to(
+            magnitude * math.cos(math.radians(degrees)),
+            magnitude * math.sin(math.radians(degrees)),
+        )
 
+    def degrees(self, degrees: float):
+        """
+        Alternate setter, like calling vec(new_degrees, old_magnitude).
+        """
+        magnitude = math.sqrt(self._offset_vec[0] ** 2 + self._offset_vec[1] ** 2)
         return self.to(
             magnitude * math.cos(math.radians(degrees)),
             magnitude * math.sin(math.radians(degrees)),
