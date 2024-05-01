@@ -81,7 +81,7 @@ class Line(Doodle):
         """
         Alternate setter, like calling vec(new_degrees, old_magnitude).
         """
-        magnitude = math.sqrt(self._offset_vec[0]**2 + self._offset_vec[1]**2)
+        magnitude = math.sqrt(self._offset_vec[0] ** 2 + self._offset_vec[1] ** 2)
         return self.to(
             magnitude * math.cos(math.radians(degrees)),
             magnitude * math.sin(math.radians(degrees)),
