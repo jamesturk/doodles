@@ -12,11 +12,13 @@ This is a reasonable example of when two classes might reasonable share a file.
 """
 import random
 import copy
+import time
 from abc import ABC, abstractmethod
-from typing import Callable, Self
+from typing import Callable, Self, Any
 from .color import Color
 from .world import world
 
+UpdateCallable = Callable[[float], Any]
 
 class Doodle(ABC):
     """
@@ -38,7 +40,7 @@ class Doodle(ABC):
 
     # annotations for instance attributes
     _parent: Self | None
-    _updates: list[Callable]
+    _updates: list[tuple[str, UpdateCallable]]
     _color: tuple[int, int, int]
     _alpha: int
     _z_index: float
@@ -110,17 +112,11 @@ class Doodle(ABC):
         new._register()
         return new
 
-    # Dynamic Update Logic ############
+    # animate #######################
 
-    # These methods relate to a WIP feature
-    # designed to demonstrate a functional hybrid
-    # approach to having objects update themselves.
-    #
-    # This feature isn't complete, or documented yet.
-    # TODO
-
-    def register_update(self, method, *args):
-        self._updates.append((method, args))
+    def animate(self, prop_name: str, update_func: UpdateCallable) -> Self:
+        self._updates.append((prop_name, update_func))
+        return self
 
     def update(self) -> None:
         """
@@ -130,9 +126,16 @@ class Doodle(ABC):
         Can be overriden (see examples.balls)
         to provide per-object update behavior.
         """
-        for method, args in self._updates:
-            evaled_args = [arg() for arg in args]
-            method(*evaled_args)
+        cur_time = time.time()
+
+        for prop, anim_func in self._updates:
+            # attributes on Doodle are set via setter functions
+            # prop is the name of a setter function, which we
+            # retrieve here, and then populate with the result
+            # of anim_func(time)
+            setter = getattr(self, prop)
+            new_val = anim_func(cur_time)
+            setter(new_val)
 
     # Setters #######################
 
