@@ -1,4 +1,3 @@
-import time
 import math
 from doodles import Circle, Color, Line, Group
 
@@ -27,5 +26,4 @@ def create():
     #     200
     # ).z(100)
 
-    l = Line(g).vec(0, 200).z(100).animate("degrees", lambda t: t % 60 / 60 * 360)
-    # l.animate("color", color_func)
+    Line(g).vec(0, 200).z(100).animate("degrees", lambda t: t % 60 / 60 * 360)

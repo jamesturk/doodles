@@ -6,7 +6,7 @@ the easiest to learn from.
 """
 import math
 import random
-from typing import Callable, Self
+from typing import Self
 from .doodles import Doodle
 from .world import world
 

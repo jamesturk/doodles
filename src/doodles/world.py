@@ -12,7 +12,7 @@ from .draw_engine import DrawEngine
 # this is needed because of circular references
 if TYPE_CHECKING:
     from .doodles import Doodle
-    from .shapes import Rectangle, Circle
+    from .shapes import Rectangle, Circle, Polygon
     from .lines import Line
     from .text import Text
 

@@ -1,7 +1,7 @@
 """
 Demo of the interchangable nature of these classes.
 """
-from doodles import Polygon, Line, Rectangle, Circle, Color
+from doodles import Polygon, Line, Rectangle, Circle
 import random
 import math
 
@@ -22,4 +22,6 @@ def rainbow(t) -> tuple[int, int, int]:
 def create():
     for _ in range(100):
         DoodleType = random.choice(types)
-        doodle = DoodleType().random().animate("color", rainbow)
+        d = DoodleType()
+        # we do not need to know what DoodleType is, these methods all work
+        d.random().animate("color", rainbow)
