@@ -40,7 +40,7 @@ class Doodle(ABC):
 
     # annotations for instance attributes
     _parent: Self | None
-    _updates: list[tuple[str, UpdateCallable]]
+    _updates: list[tuple[str, UpdateCallable, dict[str, Any]]]
     _color: tuple[int, int, int]
     _alpha: int
     _z_index: float
@@ -114,8 +114,8 @@ class Doodle(ABC):
 
     # animate #######################
 
-    def animate(self, prop_name: str, update_func: UpdateCallable) -> Self:
-        self._updates.append((prop_name, update_func))
+    def animate(self, prop_name: str, update_func: UpdateCallable, **kwargs) -> Self:
+        self._updates.append((prop_name, update_func, kwargs))
         return self
 
     def update(self) -> None:
@@ -128,14 +128,17 @@ class Doodle(ABC):
         """
         cur_time = time.time()
 
-        for prop, anim_func in self._updates:
+        for prop, anim_func, kwargs in self._updates:
             # attributes on Doodle are set via setter functions
             # prop is the name of a setter function, which we
             # retrieve here, and then populate with the result
             # of anim_func(time)
+            # kwargs (if set) are passed through directly to anim_func
+            # allowing constant arguments to be passed as well as
+            # the variable function-based argument (anim_func)
             setter = getattr(self, prop)
             new_val = anim_func(cur_time)
-            setter(new_val)
+            setter(new_val, **kwargs)
 
     # Setters #######################
 
