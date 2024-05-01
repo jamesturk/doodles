@@ -1,4 +1,4 @@
-from doodles import Polygon, Color
+from doodles import Polygon
 import random
 
 
